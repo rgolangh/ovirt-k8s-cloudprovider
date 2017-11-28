@@ -1,5 +1,5 @@
-hash: 7b8237f4820e8387c2cedbecfe601abc02755e61762b3368ba2c5f2dad3dad4c
-updated: 2017-11-05T16:31:53.998869877+02:00
+hash: a6d5f1c24c780e17eb707d9b8d3807719cd079adbf0983d51fc2a1d9f00ec314
+updated: 2017-11-28T10:23:17.487325167+02:00
 imports:
 - name: github.com/davecgh/go-spew
   version: 782f4967f2dc4564575ca782fe2d04090b5faca8
@@ -23,9 +23,9 @@ imports:
 - name: github.com/go-openapi/jsonreference
   version: 13c6e3589ad90f49bd3e3bbe2c2cb3d7a4142272
 - name: github.com/go-openapi/spec
-  version: 6aced65f8501fe1217321abf0749d354824ba2ff
+  version: 7abd5745472fff5eb3685386d5fb8bf38683154d
 - name: github.com/go-openapi/swag
-  version: 1d0bd113de87027671077d3c71eb3ac5d7dbba72
+  version: f3f9494671f93fcff853e3c6e9e948b3eb71e590
 - name: github.com/gogo/protobuf
   version: c0656edd0d9eab7c66d1eb0c568f9039345796f7
   subpackages:
@@ -68,7 +68,7 @@ imports:
 - name: github.com/juju/ratelimit
   version: 5b9ff866471762aa2ab2dced63c9fb6f53921342
 - name: github.com/mailru/easyjson
-  version: d5b7844b561a7bc640052f1b935f7b800330d7e0
+  version: 2f5df55504ebc322e4d52d34df6a1f5b503bf26d
   subpackages:
   - buffer
   - jlexer
@@ -87,13 +87,10 @@ imports:
   version: 1c05540f6879653db88113bc4a2b70aec4bd491f
   subpackages:
   - context
-  - html
-  - html/atom
   - http2
   - http2/hpack
   - idna
   - lex/httplex
-  - websocket
 - name: golang.org/x/text
   version: b19bf474d317b857955b12035d2c5acb57ce8b01
   subpackages:
@@ -258,25 +255,27 @@ imports:
   - util/integer
   - util/retry
 - name: k8s.io/kube-openapi
-  version: 80f07ef71bb4f781233c65aa8d0369e4ecafab87
+  version: 61b46af70dfed79c6d24530cd23b41440a7f22a5
   subpackages:
   - pkg/common
 - name: k8s.io/kubernetes
-  version: 444a161d227565681bd2a475b4e654f4fda2b50f
+  version: e7258eecaa6724415f29d59102059fe2cdbcd6e6
   subpackages:
-  - pkg/api
-  - pkg/api/helper
-  - pkg/api/install
   - pkg/api/legacyscheme
   - pkg/api/service
-  - pkg/api/v1
-  - pkg/api/v1/helper
   - pkg/api/v1/pod
-  - pkg/api/validation
+  - pkg/apis/autoscaling
+  - pkg/apis/core
+  - pkg/apis/core/helper
+  - pkg/apis/core/install
+  - pkg/apis/core/v1
+  - pkg/apis/core/v1/helper
+  - pkg/apis/core/validation
   - pkg/apis/extensions
   - pkg/apis/networking
   - pkg/capabilities
   - pkg/cloudprovider
+  - pkg/cloudprovider/providers
   - pkg/controller
   - pkg/features
   - pkg/kubelet/types

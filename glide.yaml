@@ -1,12 +1,11 @@
-package: ovirtcloudprovider
+package: github.com/ovirt/ovirt-k8s-cloudprovider
 import:
 - package: gopkg.in/gcfg.v1
-  version: ^1.2.1
 - package: k8s.io/apimachinery
   subpackages:
   - pkg/types
 - package: k8s.io/kubernetes
-  version: ^1.9.0-alpha.2
   subpackages:
   - pkg/cloudprovider
+  - pkg/cloudprovider/providers
   - pkg/controller

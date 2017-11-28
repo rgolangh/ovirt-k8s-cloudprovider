@@ -7,16 +7,19 @@ import (
 
 	"gopkg.in/gcfg.v1"
 
-	"net/url"
-	"k8s.io/apimachinery/pkg/types"
-	"net/http"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/url"
+
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 	"k8s.io/kubernetes/pkg/controller"
-	"k8s.io/kubernetes/pkg/cloudprovider/providers/ovirt"
-	"k8s.io/api/core/v1"
+	//"k8s.io/kubernetes/pkg/cloudprovider/providers/ovirt"
 	"net"
+	"unicode"
+
+	"k8s.io/api/core/v1"
 )
 
 const ProviderName = "ovirt"
@@ -45,10 +48,11 @@ type Provider struct {
 }
 
 type VM struct {
-	Name 		string 		`json:"name"`
-	Id   		string 		`json:"id"`
-	Fqdn 		string 		`json:"fqdn"`
-	Addresses []net.Addr 	'json:""'
+	Name      string     `json:"name"`
+	Id        string     `json:"id"`
+	Fqdn      string     `json:"fqdn"`
+	Addresses []net.Addr `json:""`
+	Status    string     `json:"status"`
 }
 
 type VMs struct {
@@ -106,24 +110,39 @@ func (*Provider) Zones() (cloudprovider.Zones, bool) {
 
 }
 
+// NodeAddressses returns an hostnames/external-ips of the calling node
 func (p *Provider) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error) {
 	vms, err := p.getVms()
 	if err == nil {
 		return nil, err
 	}
-	var vm *VM = &vms[string(name)]
-	if vm == nil {
+
+	var vm VM = vms[string(name)]
+	if vm.Id == "" {
 		return nil, fmt.Errorf(
-			"VM by the name %s does not exist." +
-			" The VM may have been removed, or the search query criteria needs correction",
-				name)
+			"VM by the name %s does not exist."+
+				" The VM may have been removed, or the search query criteria needs correction",
+			name)
 	}
-	fqdn := vm.Addresses
-	if fqdn == "" {
-		return nil, fmt.Errorf("Missing fqdn of instance")
+	if vm.Addresses == nil || len(vm.Addresses) == 0 {
+		return nil, fmt.Errorf("Missing addresses of instance \n")
 	}
 
-	return
+	addresses := make([]v1.NodeAddress, len(vm.Addresses))
+
+	for i, a := range vm.Addresses {
+		var t v1.NodeAddressType
+		if unicode.IsDigit(rune(a.String()[0])) {
+			t = v1.NodeExternalIP
+		} else {
+			t = v1.NodeHostName
+		}
+		addresses[i] = v1.NodeAddress{
+			Address: a.String(),
+			Type:    t,
+		}
+	}
+	return addresses, nil
 }
 
 func (p *Provider) InstanceID(nodeName types.NodeName) (string, error) {
@@ -187,3 +206,47 @@ func (*Provider) CurrentNodeName(hostname string) (types.NodeName, error) {
 	return types.NodeName(hostname), nil
 }
 
+// ExternalID returns the cloud provider ID of the node with the specified NodeName.
+// Note that if the instance does not exist or is no longer running, we must return ("", cloudprovider.InstanceNotFound)
+func (p *Provider) ExternalID(nodeName types.NodeName) (string, error) {
+	vms, err := p.getVms()
+	if err != nil || vms[string(nodeName)].Id == "" {
+
+	}
+	return vms[string(nodeName)].Id, nil
+}
+
+// InstanceExistsByProviderID returns true if the instance for the given provider id still is running.
+// If false is returned with no error, the instance will be immediately deleted by the cloud controller manager.
+func (p *Provider) InstanceExistsByProviderID(providerID string) (bool, error) {
+	vms, err := p.getVms()
+	if err != nil {
+
+	}
+	for _, v := range vms {
+		// statuses of up, unknown, not-responding still most likely indicate a running
+		// instance. First lets consider 'down' as the non existing instance.
+		if v.Id == providerID {
+			if v.Status == "down" {
+				return false, nil
+			} else {
+				return true, nil
+			}
+		}
+	}
+	return false, fmt.Errorf("there is no instance with ID %s", providerID)
+}
+
+// InstanceType returns the type of the specified instance.
+func (p *Provider) InstanceType(name types.NodeName) (string, error) {
+	return ProviderName, nil
+}
+
+// InstanceTypeByProviderID returns the type of the specified instance.
+func (p *Provider) InstanceTypeByProviderID(providerID string) (string, error) {
+	return "", cloudprovider.NotImplemented
+}
+
+func (p *Provider) NodeAddressesByProviderID(providerID string) ([]v1.NodeAddress, error) {
+	return []v1.NodeAddress{}, cloudprovider.NotImplemented
+}

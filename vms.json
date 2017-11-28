@@ -278,7 +278,7 @@
     },
     "run_once" : "false",
     "start_time" : 1508232571618,
-    "status" : "unknown",
+    "status" : "down",
     "stop_time" : 1508232570435,
     "host" : {
       "href" : "/ovirt-engine/api/hosts/95471c75-66b5-47a8-8dc2-d7c1ed305e4a",

@@ -1,38 +1,30 @@
 package ovirt
 
 import (
-	"testing"
-	"fmt"
-	"net/http"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"net/http/httptest"
+	"testing"
 )
 
 var vmsJsonData string
-var expectedId = "0013e1a7-c837-4b7f-8420-6deca9486415"
+
+const vm1Id = "0013e1a7-c837-4b7f-8420-6deca9486415"
+const vm2Id = "e47839a3-149b-4405-ba69-3fb20eaa2fed"
+const vm1NodeName = "ovirtNode_1"
 
 type HttpHandler struct{}
 
 func TestMain(m *testing.M) {
 	if vmsJsonData == "" {
-		parse, err := ioutil.ReadFile("/home/rgolan/go/src/ovirtcloudprovider/vms.json")
+		parse, err := ioutil.ReadFile("./vms.json")
 		if err != nil {
 			panic(err)
 		}
 		vmsJsonData = string(parse)
 	}
 	m.Run()
-}
-
-func (h *HttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	i := string(vmsJsonData)
-	io.WriteString(w, i)
-}
-
-func mockGetVms() *httptest.Server {
-	server := httptest.NewServer(&HttpHandler{})
-	return server
 }
 
 func TestNewProvider(t *testing.T) {
@@ -45,14 +37,9 @@ func TestNewProvider(t *testing.T) {
 // TestGetInstanceId test the id returned from the api call
 func TestGetInstanceId(t *testing.T) {
 	// mock the api call to return a json of vms
-	httpServer := mockGetVms()
-	defer httpServer.Close()
+	provider, err := getProvider()
 
-	c := ProviderConfig{}
-	c.Connection.Url = httpServer.URL
-	provider, err := NewOvirtProvider(c)
-
-	id, err := provider.InstanceID("ovirtNode_1")
+	id, err := provider.InstanceID(vm1NodeName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,9 +48,57 @@ func TestGetInstanceId(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if id != expectedId {
-		t.Fatalf("expected id %s is no equal to %s", expectedId, id)
+	if id != vm1Id {
+		t.Fatalf("expected id %s is no equal to %s", vm1Id, id)
 	}
 }
 
+func TestProvider_CurrentNodeName(t *testing.T) {
+	p, _ := getProvider()
+	name, err := p.CurrentNodeName(vm1NodeName)
+	if err != nil || name == "" {
+		t.Fatalf("node name %s was not found. Error was %s", vm1NodeName, err)
+	}
+}
 
+func TestProvider_InstanceExistsByProviderId(t *testing.T) {
+	p, _ := getProvider()
+	exists, _ := p.InstanceExistsByProviderID(vm1Id)
+	if !exists {
+		t.Fatalf("the instance %s should exist with status which is other than down", vm1Id)
+	}
+}
+
+func TestProvider_InstanceByProviderIdNotExists(t *testing.T) {
+	p, _ := getProvider()
+	exists, _ := p.InstanceExistsByProviderID(vm2Id)
+	if exists {
+		t.Fatalf("the instance %s should not exist with status down", vm2Id)
+	}
+}
+
+func TestProvider_NodeAddressesByProviderID(t *testing.T) {
+	p, _ := getProvider()
+	p.NodeAddresses(vm1NodeName)
+}
+
+func getProvider() (*Provider, error) {
+	httpServer := mockGetVms()
+	//TODO How to defer this using some Before-After hooks of tests in go? I can't defer in place otherwise tests will not
+	// be able to use it (it closes before the test actually uses it)
+	//defer httpServer.Close()
+	c := ProviderConfig{}
+	c.Connection.Url = httpServer.URL
+	provider, err := NewOvirtProvider(c)
+	return provider, err
+}
+
+func (h *HttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	i := string(vmsJsonData)
+	io.WriteString(w, i)
+}
+
+func mockGetVms() *httptest.Server {
+	server := httptest.NewServer(&HttpHandler{})
+	return server
+}
