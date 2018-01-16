@@ -82,7 +82,7 @@ func TestProvider_NodeAddressesByProviderID(t *testing.T) {
 	p.NodeAddresses(vm1NodeName)
 }
 
-func getProvider() (*Provider, error) {
+func getProvider() (*CloudProvider, error) {
 	httpServer := mockGetVms()
 	//TODO How to defer this using some Before-After hooks of tests in go? I can't defer in place otherwise tests will not
 	// be able to use it (it closes before the test actually uses it)

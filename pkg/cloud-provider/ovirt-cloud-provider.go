@@ -43,7 +43,7 @@ type ProviderConfig struct {
 	}
 }
 
-type Provider struct {
+type CloudProvider struct {
 	VmsQuery *url.URL
 }
 
@@ -75,7 +75,7 @@ func init() {
 		})
 }
 
-func NewOvirtProvider(providerConfig ProviderConfig) (*Provider, error) {
+func NewOvirtProvider(providerConfig ProviderConfig) (*CloudProvider, error) {
 	vmsQuery, err := url.Parse(providerConfig.Connection.Url)
 	if err != nil {
 		return nil, err
@@ -84,34 +84,34 @@ func NewOvirtProvider(providerConfig ProviderConfig) (*Provider, error) {
 	vmsQuery.Path = path.Join(vmsQuery.Path, "vms")
 	vmsQuery.RawQuery = url.Values{"search": {providerConfig.Filters.VmsQuery}}.Encode()
 
-	return &Provider{VmsQuery: vmsQuery}, nil
+	return &CloudProvider{VmsQuery: vmsQuery}, nil
 
 }
 
 // Initialize provides the cloud with a kubernetes client builder and may spawn goroutines
 // to perform housekeeping activities within the cloud provider.
-func (*Provider) Initialize(clientBuilder controller.ControllerClientBuilder) {
+func (*CloudProvider) Initialize(clientBuilder controller.ControllerClientBuilder) {
 
 }
 
 // LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
-func (*Provider) LoadBalancer() (cloudprovider.LoadBalancer, bool) {
+func (*CloudProvider) LoadBalancer() (cloudprovider.LoadBalancer, bool) {
 	return nil, false
 }
 
 // Instances returns an instances interface. Also returns true if the interface is supported, false otherwise.
-func (p *Provider) Instances() (cloudprovider.Instances, bool) {
+func (p *CloudProvider) Instances() (cloudprovider.Instances, bool) {
 	return p, true
 }
 
 // Zones returns a zones interface. Also returns true if the interface is supported, false otherwise.
-func (*Provider) Zones() (cloudprovider.Zones, bool) {
+func (*CloudProvider) Zones() (cloudprovider.Zones, bool) {
 	return nil, false
 
 }
 
 // NodeAddressses returns an hostnames/external-ips of the calling node
-func (p *Provider) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error) {
+func (p *CloudProvider) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error) {
 	vms, err := p.getVms()
 	if err == nil {
 		return nil, err
@@ -145,12 +145,12 @@ func (p *Provider) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error) 
 	return addresses, nil
 }
 
-func (p *Provider) InstanceID(nodeName types.NodeName) (string, error) {
+func (p *CloudProvider) InstanceID(nodeName types.NodeName) (string, error) {
 	vms, err := p.getVms()
 	return vms[string(nodeName)].Id, err
 }
 
-func (p *Provider) getVms() (map[string]VM, error) {
+func (p *CloudProvider) getVms() (map[string]VM, error) {
 	resp, err := http.Get(p.VmsQuery.String())
 	defer resp.Body.Close()
 	if err != nil {
@@ -172,43 +172,43 @@ func (p *Provider) getVms() (map[string]VM, error) {
 }
 
 // Clusters returns a clusters interface.  Also returns true if the interface is supported, false otherwise.
-func (*Provider) Clusters() (cloudprovider.Clusters, bool) {
+func (*CloudProvider) Clusters() (cloudprovider.Clusters, bool) {
 	return nil, false
 }
 
 // Routes returns a routes interface along with whether the interface is supported.
-func (*Provider) Routes() (cloudprovider.Routes, bool) {
+func (*CloudProvider) Routes() (cloudprovider.Routes, bool) {
 	return nil, false
 }
 
 // ProviderName returns the cloud provider ID.
-func (*Provider) ProviderName() string {
+func (*CloudProvider) ProviderName() string {
 	return ProviderName
 }
 
 // ScrubDNS provides an opportunity for cloud-provider-specific code to process DNS settings for pods.
-func (*Provider) ScrubDNS(nameservers, searches []string) (nsOut, srchOut []string) {
+func (*CloudProvider) ScrubDNS(nameservers, searches []string) (nsOut, srchOut []string) {
 	return nil, nil
 
 }
 
 // HasClusterID returns true if a ClusterID is required and set
-func (*Provider) HasClusterID() bool {
+func (*CloudProvider) HasClusterID() bool {
 	return false
 }
 
-func (*Provider) AddSSHKeyToAllInstances(user string, keyData []byte) error {
+func (*CloudProvider) AddSSHKeyToAllInstances(user string, keyData []byte) error {
 	return errors.New("NotImplemented")
 }
 
-func (*Provider) CurrentNodeName(hostname string) (types.NodeName, error) {
+func (*CloudProvider) CurrentNodeName(hostname string) (types.NodeName, error) {
 	//var r types.NodeName = ""
 	return types.NodeName(hostname), nil
 }
 
 // ExternalID returns the cloud provider ID of the node with the specified NodeName.
 // Note that if the instance does not exist or is no longer running, we must return ("", cloudprovider.InstanceNotFound)
-func (p *Provider) ExternalID(nodeName types.NodeName) (string, error) {
+func (p *CloudProvider) ExternalID(nodeName types.NodeName) (string, error) {
 	vms, err := p.getVms()
 	if err != nil || vms[string(nodeName)].Id == "" {
 
@@ -218,7 +218,7 @@ func (p *Provider) ExternalID(nodeName types.NodeName) (string, error) {
 
 // InstanceExistsByProviderID returns true if the instance for the given provider id still is running.
 // If false is returned with no error, the instance will be immediately deleted by the cloud controller manager.
-func (p *Provider) InstanceExistsByProviderID(providerID string) (bool, error) {
+func (p *CloudProvider) InstanceExistsByProviderID(providerID string) (bool, error) {
 	vms, err := p.getVms()
 	if err != nil {
 
@@ -238,15 +238,15 @@ func (p *Provider) InstanceExistsByProviderID(providerID string) (bool, error) {
 }
 
 // InstanceType returns the type of the specified instance.
-func (p *Provider) InstanceType(name types.NodeName) (string, error) {
+func (p *CloudProvider) InstanceType(name types.NodeName) (string, error) {
 	return ProviderName, nil
 }
 
 // InstanceTypeByProviderID returns the type of the specified instance.
-func (p *Provider) InstanceTypeByProviderID(providerID string) (string, error) {
+func (p *CloudProvider) InstanceTypeByProviderID(providerID string) (string, error) {
 	return "", cloudprovider.NotImplemented
 }
 
-func (p *Provider) NodeAddressesByProviderID(providerID string) ([]v1.NodeAddress, error) {
+func (p *CloudProvider) NodeAddressesByProviderID(providerID string) ([]v1.NodeAddress, error) {
 	return []v1.NodeAddress{}, cloudprovider.NotImplemented
 }
