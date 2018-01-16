@@ -1,4 +1,4 @@
-package ovirt
+package cloud_provider
 
 import (
 	"io"

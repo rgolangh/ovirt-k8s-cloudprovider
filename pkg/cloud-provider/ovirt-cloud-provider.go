@@ -1,4 +1,4 @@
-package ovirt
+package cloud_provider
 
 import (
 	"fmt"
@@ -22,7 +22,9 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-const ProviderName = "ovirt"
+// ProviderName is the canonical name the plugin will register under. It must be different the the in-tree
+// implementation name, "ovirt". The addition of "ecp" stand for External-Cloud-Provider
+const ProviderName = "ovirt-ecp"
 
 type OvirtNode struct {
 	UUID      string
