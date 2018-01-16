@@ -1,0 +1,17 @@
+---
+roles:
+  - lib_yaml_editor
+
+- hosts: k8s-ovirt-masters
+  remote_user: root
+  tasks:
+    - name: Create the DaemonSet
+    TODO
+
+- hosts: k8-nodes:k8s-masters
+  tasks:
+    - name: Make sure kubelet is set with "cloud-provider: external"
+      yedit:
+        src: /etc/kubernetes/kubelet.conf
+        key: cloud-provider
+        value: external
