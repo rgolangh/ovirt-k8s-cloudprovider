@@ -1,4 +1,4 @@
-package cloud_provider
+package main
 
 import (
 	"fmt"
