@@ -14,7 +14,6 @@ import (
 
 	"github.com/spf13/pflag"
 	"k8s.io/kubernetes/pkg/cloudprovider"
-	"github.com/ovirt/ovirt-k8s-cloudprovider/pkg/cloud-provider"
 )
 
 func main() {
@@ -27,7 +26,7 @@ func main() {
 
 	verflag.PrintAndExitIfRequested()
 
-	_, err := cloudprovider.InitCloudProvider(cloud_provider.ProviderName, s.CloudConfigFile)
+	_, err := cloudprovider.InitCloudProvider(ProviderName, s.CloudConfigFile)
 
 	exitOnError(err)
 	if err := app.Run(s); err != nil {
