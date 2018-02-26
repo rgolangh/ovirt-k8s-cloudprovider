@@ -12,3 +12,5 @@ import:
 - package: github.com/prometheus/client_golang
   subpackages:
   - prometheus
+- package: github.com/go-ini/ini
+  version: ^1.32.0
