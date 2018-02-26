@@ -17,7 +17,6 @@ limitations under the License.
 package internal
 
 import (
-	"code.cloudfoundry.org/bytefmt"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -129,51 +128,7 @@ func isTokenValid(ovirt *Ovirt) bool {
 	return true
 }
 
-// Attach will attach a disk to a VM on ovirt.
-// vmName is ovirt's vm name
-// jsonParams is the volume info
-// Response will include the device path according to the disk interface type
-func (ovirt *Ovirt) Attach(params AttachRequest, vmName string) (Response, error) {
-	err := ovirt.Authenticate()
-	// TODO validate params
-	if err != nil {
-		return FailedResponse, err
-	}
 
-	// convert params to json
-	requestJson, err := json.Marshal(
-		DiskAttachment{
-			Bootable:    true,
-			PassDiscard: true,
-			Active:      true,
-			Disk: Disk{
-				Name: params.VolumeName,
-				// TODO not in the spec, raise that
-				ProvisionedSize: bytefmt.GIGABYTE,
-			},
-		})
-
-	if err != nil {
-		return FailedResponse, err
-	}
-
-	// ovirt API call
-	req, err := postWithJsonData(ovirt, "/vms/"+vmName+"/diskattachments", requestJson)
-	resp, err := ovirt.client.Do(req)
-
-	if err != nil {
-		return FailedResponse, err
-	}
-	defer resp.Body.Close()
-
-	diskAttachment := DiskAttachment{}
-	jsonResponse, err := ioutil.ReadAll(resp.Body)
-	json.Unmarshal(jsonResponse, &diskAttachment)
-
-	attachResponse := SuccessfulResponse
-
-	return attachResponse, err
-}
 func (ovirt Ovirt) GetDiskByName(diskName string) (DiskResult, error) {
 	var diskResult DiskResult
 	r, err := ovirt.Get(fmt.Sprintf("disks?search=name=%s", diskName))
@@ -182,38 +137,6 @@ func (ovirt Ovirt) GetDiskByName(diskName string) (DiskResult, error) {
 	}
 	err = json.Unmarshal(r, &diskResult)
 	return diskResult, err
-}
-
-func (ovirt *Ovirt) CreateDisk(
-	diskName string,
-	storageDomainName string,
-	size string,
-	readOnly bool,
-	vmId string) (DiskAttachment, error) {
-	s, _ := bytefmt.ToBytes(size)
-	if diskName == "" {
-		diskName = "test-disk" + string(time.Now().Second())
-	}
-	a := DiskAttachment{
-		Interface: "virtio",
-		Active:    true,
-		Disk: Disk{
-			Name:            diskName,
-			ProvisionedSize: s,
-			Format:          "raw",
-			StorageDomains: StorageDomains{
-				[]StorageDomain{{Name: storageDomainName}},
-			},
-		},
-		ReadOnly: readOnly,
-	}
-	post, err := ovirt.Post("/vms/"+vmId+"/diskattachments", a)
-	if err != nil {
-		return a, err
-	}
-	r := DiskAttachment{}
-	err = json.Unmarshal([]byte(post), &r)
-	return r, err
 }
 
 func (ovirt Ovirt) Get(path string) ([]byte, error) {
