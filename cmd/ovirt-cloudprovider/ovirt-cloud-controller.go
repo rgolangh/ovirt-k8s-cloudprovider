@@ -17,25 +17,22 @@ import (
 )
 
 func main() {
-	s := options.NewCloudControllerManagerServer()
-	s.AddFlags(pflag.CommandLine)
+	rand.Seed(time.Now().UTC().UnixNano())
 
-	flag.InitFlags()
+	command := app.NewCloudControllerManagerCommand()
+
+	// TODO: once we switch everything over to Cobra commands, we can go back to calling
+	// utilflag.InitFlags() (by removing its pflag.Parse() call). For now, we have to set the
+	// normalize func and add the go flag set by hand.
+	pflag.CommandLine.SetNormalizeFunc(utilflag.WordSepNormalizeFunc)
+	pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
+	// utilflag.InitFlags()
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
-	verflag.PrintAndExitIfRequested()
-
-	_, err := cloudprovider.InitCloudProvider(ProviderName, s.CloudConfigFile)
-
-	exitOnError(err)
-	if err := app.Run(s); err != nil {
-
-	}
-}
-func exitOnError(err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+	if err := command.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
-	}
 }
+}
+
