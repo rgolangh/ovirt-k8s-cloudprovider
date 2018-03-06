@@ -1,5 +1,5 @@
-hash: 581006ec19ca9053b8757cb784ce40cf42cc68aecb2db3dd200e849319a9eb6d
-updated: 2018-02-12T11:18:22.596050885+02:00
+hash: 4b375158ff16c20692d0aabfaf9b3a5e79544573484bde1045ee6ef9d2bf6229
+updated: 2018-03-07T14:26:35.059382579+02:00
 imports:
 - name: code.cloudfoundry.org/bytefmt
   version: b31f603f5e1e047fdb38584e1a922dcc5c4de5c8
@@ -125,6 +125,10 @@ imports:
   version: 8a290539e2e8629dbc4e6bad948158f790ec31f4
 - name: github.com/PuerkitoBio/urlesc
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
+- name: github.com/rgolangh/ovirt-k8s-cloudprovider
+  version: a8ab78efda72e1d0506add1b5f49dc713314c0c0
+  subpackages:
+  - internal
 - name: github.com/spf13/afero
   version: b28a7effac979219c2a2ed6205a4d70e4b1bcd02
   subpackages:
@@ -477,7 +481,6 @@ imports:
   - pkg/util/taints
   - pkg/version
   - pkg/version/prometheus
-  - pkg/version/verflag
   - pkg/volume
   - pkg/volume/flexvolume
   - pkg/volume/util

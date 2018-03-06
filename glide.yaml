@@ -1,4 +1,4 @@
-package: github.com/ovirt/ovirt-k8s-cloudprovider
+package: github.com/rgolangh/ovirt-cloudprovider
 import:
 - package: gopkg.in/gcfg.v1
 - package: k8s.io/apimachinery
@@ -13,4 +13,4 @@ import:
   subpackages:
   - prometheus
 - package: github.com/go-ini/ini
-  version: ^1.32.0
+  version: 1.32.0

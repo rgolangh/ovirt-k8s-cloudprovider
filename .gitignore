@@ -20,4 +20,7 @@
 *.iml
 
 *.retry
+
 ovirt-cloudprovider
+ovirt-cloudprovider*.tar.gz
+vendor/**.spec
