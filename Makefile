@@ -9,7 +9,9 @@ GODEP=dep
 BINARY_NAME=ovirt-cloudprovider
 
 IMAGE=rgolangh/ovirt-cloudprovider
-VERSION?=$(shell git describe --tags --always)
+REGISTRY=rgolangh
+VERSION?=$(shell git describe --tags --always| cut -d "-" -f1)
+RELEASE?=$(shell git describe --tags --always| cut -d "-" -f2- | sed 's/-/_/')
 COMMIT=$(shell git rev-parse HEAD)
 BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 
@@ -29,12 +31,12 @@ container: \
 	quick-container
 
 quick-container:
-	cp $(BINARY_NAME) deployment/container
-	docker build -t $(IMAGE):$(VERSION) deployment/container/
+	docker build -t $(REGISTRY)/$(BINARY_NAME):$(VERSION) . -f deployment/container/Dockerfile
+	docker tag $(REGISTRY)/$(BINARY_NAME):$(VERSION)
 
 push:
-    # don't forget docker login. TODO official registry
-	docker push $(IMAGE):$(VERSION)
+	@docker login -u rgolangh -p ${DOCKER_BUILDER_API_KEY}
+	docker push $(REGISTRY)/$(BINARY_NAME):$(VERSION)
 
 test:
 	$(GOTEST) -v ./...
@@ -47,4 +49,4 @@ run: \
 deps:
 	glide install --strip-vendor
 
-.PHONY: build
+.PHONY: build container quick-container push test clean run dep
