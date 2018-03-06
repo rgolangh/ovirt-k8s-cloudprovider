@@ -1,14 +1,15 @@
 package main
 
 import (
+	"github.com/rgolangh/ovirt-k8s-cloudprovider/internal"
 	"fmt"
 	"io"
 	"path"
 
-	"gopkg.in/gcfg.v1"
-
 	"encoding/json"
 	"errors"
+	"github.com/go-ini/ini"
+	"gopkg.in/gcfg.v1"
 	"net/http"
 	"net/url"
 
@@ -20,6 +21,7 @@ import (
 	"unicode"
 
 	"k8s.io/api/core/v1"
+	"os"
 )
 
 // ProviderName is the canonical name the plugin will register under. It must be different the the in-tree
@@ -47,6 +49,7 @@ type ProviderConfig struct {
 
 type CloudProvider struct {
 	VmsQuery *url.URL
+	OvirtApi *internal.OvirtApi
 }
 
 type VM struct {
@@ -61,6 +64,7 @@ type VMs struct {
 	Vm []VM
 }
 
+// init will register the cloud provider
 func init() {
 	cloudprovider.RegisterCloudProvider(
 		ProviderName,
@@ -78,6 +82,7 @@ func init() {
 }
 
 func NewOvirtProvider(providerConfig ProviderConfig) (*CloudProvider, error) {
+
 	vmsQuery, err := url.Parse(providerConfig.Connection.Url)
 	if err != nil {
 		return nil, err
@@ -88,6 +93,35 @@ func NewOvirtProvider(providerConfig ProviderConfig) (*CloudProvider, error) {
 
 	return &CloudProvider{VmsQuery: vmsQuery}, nil
 
+}
+
+func newOvirt() (*internal.Ovirt, error) {
+	var conf string
+	value, exist := os.LookupEnv("OVIRT_API_CONF")
+	if exist {
+		conf = value
+	} else {
+		conf = "/etc/ovirt/ovirt-api.conf"
+	}
+
+	cfg, err := ini.InsensitiveLoad(conf)
+	if err != nil {
+		return nil, err
+	}
+	connection := internal.Connection{}
+	connection.Url = cfg.Section("").Key("url").String()
+	connection.Username = cfg.Section("").Key("username").String()
+	connection.Password = cfg.Section("").Key("password").String()
+	connection.Insecure = cfg.Section("").Key("insecure").MustBool()
+	connection.CAFile = cfg.Section("").Key("cafile").String()
+
+	ovirt := internal.Ovirt{}
+	ovirt.Connection = connection
+	err = ovirt.Authenticate()
+	if err != nil {
+		return nil, err
+	}
+	return &ovirt, nil
 }
 
 // Initialize provides the cloud with a kubernetes client builder and may spawn goroutines
