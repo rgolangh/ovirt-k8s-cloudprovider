@@ -19,6 +19,5 @@
 .idea
 *.iml
 
-vendor
 *.retry
 ovirt-cloudprovider
