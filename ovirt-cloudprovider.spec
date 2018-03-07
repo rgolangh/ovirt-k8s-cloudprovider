@@ -5,27 +5,33 @@ Summary:    oVirt external cloud-provider for kubernetes/OpenShift
 
 License:    ASL 2.0
 URL:        http://www.ovirt.org
-Source0:    %{name}-%{version}%{?_release:-%_release}.tar.gz
+Source0:    %{name}-%{version}%{?_release:_%_release}.tar.gz
+
+%global repo github.com/rgolangh
+%global golang_version 1.9.1
+%global debug_package %{nil}
 
 %description
 oVirt external cloud-provider for kubernetes/OpenShift
 
 %prep
-%setup -c
-
+%setup -c -q
 
 %build
-echo $(pwd)
+# set up temporary build gopath for the rpmbuild
+mkdir -p ./_build/src/%{repo}
+ln -s $(pwd) ./_build/src/%{repo}/%{name}
+
+export GOPATH=$(pwd)/_build
+cd _build/src/%{repo}/%{name}
 go env
-make deps
 make build
 
 %install
-install -p -m 755 %{name} %{buildroot}/bin/
-
-%define debug_package %{nil}
+mkdir -p %{buildroot}/usr/bin
+install -p -m 755 %{name} %{buildroot}/usr/bin/
 
 %files
-%{buildroot}/bin/%{name}
+/usr/bin/%{name}
 
 %changelog

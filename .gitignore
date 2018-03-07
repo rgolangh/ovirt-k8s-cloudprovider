@@ -23,4 +23,4 @@
 
 ovirt-cloudprovider
 ovirt-cloudprovider*.tar.gz
-vendor/**.spec
+vendor/**/*.spec

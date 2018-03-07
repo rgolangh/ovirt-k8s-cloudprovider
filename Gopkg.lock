@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "code.cloudfoundry.org/bytefmt"
-  packages = ["."]
-  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
-
-[[projects]]
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
   revision = "8a290539e2e8629dbc4e6bad948158f790ec31f4"
@@ -48,11 +42,6 @@
     "log"
   ]
   revision = "ff4f55a206334ef123e4f79bbf348980da81ca46"
-
-[[projects]]
-  name = "github.com/fsnotify/fsnotify"
-  packages = ["."]
-  revision = "f12c6236fe7b5cf6bcf30e5935d08cb079d78334"
 
 [[projects]]
   name = "github.com/ghodss/yaml"
@@ -179,12 +168,6 @@
   version = "1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/kr/fs"
-  packages = ["."]
-  revision = "2788f0dbd16903de03cb8186e5c7d97b69ad387b"
-
-[[projects]]
   name = "github.com/mailru/easyjson"
   packages = [
     "buffer",
@@ -216,16 +199,6 @@
   version = "v2.0.1"
 
 [[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "a22138067af1c4942683050411a841ade67fe1eb"
-
-[[projects]]
-  name = "github.com/pkg/sftp"
-  packages = ["."]
-  revision = "4d0e916071f68db74f8a73926335f809396d6b42"
-
-[[projects]]
   name = "github.com/prometheus/client_golang"
   packages = ["prometheus"]
   revision = "e7e903064f5e9eb5da98208bae10b475d4db0f8c"
@@ -253,21 +226,6 @@
   revision = "65c1f6f8f0fc1e2185eb9863a3bc751496404259"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/rgolangh/ovirt-k8s-cloudprovider"
-  packages = ["internal"]
-  revision = "a8ab78efda72e1d0506add1b5f49dc713314c0c0"
-
-[[projects]]
-  name = "github.com/spf13/afero"
-  packages = [
-    ".",
-    "mem",
-    "sftp"
-  ]
-  revision = "b28a7effac979219c2a2ed6205a4d70e4b1bcd02"
-
-[[projects]]
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "f62e98d28ab7ad31d707ba837a966378465c7b57"
@@ -279,13 +237,7 @@
 
 [[projects]]
   name = "golang.org/x/crypto"
-  packages = [
-    "curve25519",
-    "ed25519",
-    "ed25519/internal/edwards25519",
-    "ssh",
-    "ssh/terminal"
-  ]
+  packages = ["ssh/terminal"]
   revision = "81e90905daefcd6fd217b62423c0908922eadb30"
 
 [[projects]]
@@ -616,23 +568,15 @@
     "pkg/serviceaccount",
     "pkg/util/configz",
     "pkg/util/file",
-    "pkg/util/filesystem",
     "pkg/util/hash",
-    "pkg/util/io",
     "pkg/util/metrics",
-    "pkg/util/mount",
     "pkg/util/net/sets",
     "pkg/util/node",
-    "pkg/util/nsenter",
     "pkg/util/parsers",
     "pkg/util/pointer",
-    "pkg/util/strings",
     "pkg/util/taints",
     "pkg/version",
     "pkg/version/prometheus",
-    "pkg/volume",
-    "pkg/volume/flexvolume",
-    "pkg/volume/util",
     "plugin/pkg/scheduler/algorithm",
     "plugin/pkg/scheduler/algorithm/priorities/util",
     "plugin/pkg/scheduler/api",
@@ -642,14 +586,9 @@
   revision = "e7258eecaa6724415f29d59102059fe2cdbcd6e6"
   version = "v1.10.0-alpha.0"
 
-[[projects]]
-  name = "k8s.io/utils"
-  packages = ["exec"]
-  revision = "9fdc871a36f37980dd85f96d576b20d564cc0784"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "63205f18140b2a8e051bed1c42069b5633ac07a9953da1ca0861e6976a2a2168"
+  inputs-digest = "39c97f22b0f5e900cab2bd81af3cd2020dec2f06fda358ca74146305143acda5"
   solver-name = "gps-cdcl"
   solver-version = 1

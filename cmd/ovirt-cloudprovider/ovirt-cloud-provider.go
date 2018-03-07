@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/rgolangh/ovirt-k8s-cloudprovider/internal"
+	"github.com/rgolangh/ovirt-cloudprovider/internal"
 	"fmt"
 	"io"
 	"path"

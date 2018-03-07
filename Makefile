@@ -18,11 +18,12 @@ BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 COMMON_ENV=CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 COMMON_GO_BUILD_FLAGS=-a -ldflags '-extldflags "-static"'
 
-TARBALL=${BINARY_NAME}-${VERSION}-${RELEAES}.tar.gz
+TARBALL=$(BINARY_NAME)-$(VERSION)$(if $(RELEASE),_$(RELEASE)).tar.gz
 
 all: clean deps build test
 
 build:
+	go env
 	$(COMMON_ENV) $(GOBUILD) \
 	$(COMMON_GO_BUILD_FLAGS) \
 	-o $(BINARY_NAME) \
@@ -49,18 +50,16 @@ run: \
 	build \
 	./$(BINARY_NAME)
 deps:
+	go env
 	# glide install --strip-vendor
 	/home/rgolan/go/bin/dep ensure
 
 rpm: 
-	GOPATH=$(GOPATH):$(PWD)
-	set -x	
-	/bin/git ls-files | tar --files-from /proc/self/fd/0 -czf "$(TARBALL)"
-	# /bin/git archive --format=tar.gz HEAD > "$(TARBALL)"
+	/bin/git archive --format=tar.gz HEAD > $(TARBALL)
 	rpmbuild -tb $(TARBALL) \
 		--define "debug_package %{nil}" \
 		--define "_rpmdir ." \
-		--define "_version ${VERSION}"
-		# --define "_release ${RELEASE}"
+		--define "_version $(VERSION)" \
+		--define "_release $(RELEASE)"
 
 .PHONY: build container quick-container push test clean run dep rpm
