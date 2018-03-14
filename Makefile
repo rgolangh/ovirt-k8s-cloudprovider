@@ -51,8 +51,7 @@ run: \
 	./$(BINARY_NAME)
 deps:
 	go env
-	# glide install --strip-vendor
-	/home/rgolan/go/bin/dep ensure
+	dep ensure
 
 rpm: 
 	/bin/git archive --format=tar.gz HEAD > $(TARBALL)
